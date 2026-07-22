@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyse par lots - MeTHash</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">🔗</span>
+                <h1>MeTHash</h1>
+            </div>
+            <p class="subtitle">Analyse par lots</p>
+        </header>
+
+        {% if error %}
+        <div class="alert alert-error">
+            <strong>❌ Erreur</strong>
+            <p>{{ error }}</p>
+        </div>
+        {% endif %}
+
+        <div class="card">
+            <div class="card-header">
+                <h2>📁 Analyser plusieurs URLs</h2>
+                <p>Uploader un fichier CSV contenant une colonne d'URLs pour les analyser toutes en une fois.</p>
+            </div>
+            <form method="POST" enctype="multipart/form-data" action="/batch" class="url-form">
+                <div class="input-group" style="flex-direction: column; gap: 12px;">
+                    <input type="file" name="file" accept=".csv" class="url-input" required>
+                    <input type="text" name="url_col" class="url-input" placeholder="Nom de la colonne URL (défaut: url)" value="url">
+                    <button type="submit" class="btn-primary" style="align-self: flex-start;">
+                        📊 Analyser le fichier
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        {% if results is defined and results %}
+        <div class="card">
+            <div class="card-header">
+                <h2>📊 Résultats</h2>
+                <p>{{ results|length }} URLs analysées</p>
+            </div>
+            <div style="overflow-x: auto;">
+                <table style="width:100%; border-collapse: collapse; font-size: 0.85rem;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--border);">
+                            <th style="padding: 10px; text-align: left;">URL</th>
+                            <th style="padding: 10px; text-align: left;">Prédiction</th>
+                            <th style="padding: 10px; text-align: right;">Confiance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in results %}
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 8px 10px; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ r.url }}</td>
+                            <td style="padding: 8px 10px;">
+                                <span class="prob-label">{{ r.emoji }} {{ r.prediction|capitalize }}</span>
+                            </td>
+                            <td style="padding: 8px 10px; text-align: right;">{{ r.confidence }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div style="margin-top: 16px;">
+                <a href="/batch/download" class="btn-secondary">📥 Télécharger les résultats (CSV)</a>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="actions">
+            <a href="/" class="btn-secondary">← Retour à l'analyse simple</a>
+        </div>
+
+        <footer class="footer">
+            <p>MeTHash &copy; 2026 — Projet éducatif de détection d'URLs malveillantes par Machine Learning</p>
+        </footer>
+    </div>
+</body>
+</html>

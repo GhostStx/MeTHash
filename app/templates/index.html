@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeTHash - Détection d'URLs Malveillantes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">🔗</span>
+                <h1>MeTHash</h1>
+            </div>
+            <p class="subtitle">Analyse d'URLs par Intelligence Artificielle</p>
+        </header>
+
+        <!-- Model status -->
+        {% if not model_loaded %}
+        <div class="alert alert-warning">
+            <strong>⚠️ Modèle non chargé</strong>
+            <p>Le modèle de Machine Learning n'est pas encore entraîné. Veuillez exécuter la commande suivante dans le terminal :</p>
+            <code>python src/train_model.py --data data/malicious_phish.csv</code>
+        </div>
+        {% endif %}
+
+        <!-- Error display -->
+        {% if error %}
+        <div class="alert alert-error">
+            <strong>❌ Erreur</strong>
+            <p>{{ error }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Main form -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Analyser une URL</h2>
+                <p>Entrez l'URL à analyser pour déterminer si elle est bénigne ou malveillante.</p>
+            </div>
+            <form id="urlForm" action="/predict" method="POST" class="url-form">
+                <div class="input-group">
+                    <input
+                        type="url"
+                        name="url"
+                        id="urlInput"
+                        class="url-input"
+                        placeholder="https://example.com"
+                        required
+                        autocomplete="url"
+                        spellcheck="false"
+                    >
+                    <button type="submit" class="btn-primary" id="submitBtn">
+                        <span class="btn-text">🔍 Analyser</span>
+                        <span class="btn-loader" style="display:none;">
+                            <svg class="spinner" viewBox="0 0 50 50">
+                                <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+            </form>
+            <div class="quick-tips">
+                <p>Exemples :</p>
+                <button class="example-btn" data-url="https://www.google.com">google.com</button>
+                <button class="example-btn" data-url="http://bit.ly/3xM7K9p">bit.ly/3xM7K9p</button>
+                <button class="example-btn" data-url="https://login-verify-secure.com/update">URL suspecte</button>
+            </div>
+        </div>
+
+        <!-- Features list -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Comment ça marche ?</h2>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-icon">📊</div>
+                    <h3>1. Extraction de caractéristiques</h3>
+                    <p>Analyse de plus de 20 caractéristiques (longueur, protocole, caractères spéciaux, entropie du domaine...)</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">🤖</div>
+                    <h3>2. Prédiction IA</h3>
+                    <p>Un modèle Random Forest, entraîné sur des milliers d'URLs, classifie l'URL en 4 catégories</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">✅</div>
+                    <h3>3. Résultat immédiat</h3>
+                    <p>Obtenez le résultat en quelques millisecondes avec le niveau de confiance associé</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>MeTHash &copy; 2026 — Projet éducatif de détection d'URLs malveillantes par Machine Learning</p>
+        </footer>
+    </div>
+
+    <script>
+        // ── Loading state on form submit ─────────────────────────────────
+        document.getElementById('urlForm').addEventListener('submit', function(e) {
+            const btn = document.getElementById('submitBtn');
+            const text = btn.querySelector('.btn-text');
+            const loader = btn.querySelector('.btn-loader');
+            btn.disabled = true;
+            text.style.display = 'none';
+            loader.style.display = 'inline-block';
+        });
+
+        // ── Example URL buttons ─────────────────────────────────────────
+        document.querySelectorAll('.example-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.getElementById('urlInput').value = this.dataset.url;
+                document.getElementById('urlForm').requestSubmit();
+            });
+        });
+    </script>
+</body>
+</html>
